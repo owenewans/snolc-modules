@@ -70,6 +70,7 @@ def main() -> None:
         for package in metadata["packages"]
         if package["source"] is None
     }
+    version = packages[local["snolc-adapter-direct"]]["version"]
 
     manifest_paths = sorted((root / "snolpkg").glob("*.toml")) if outputs else []
     for manifest_path in manifest_paths:
@@ -117,7 +118,7 @@ def main() -> None:
         notices_output.write_bytes(notices)
     for target, output in sorted(bundle_outputs.items()):
         write_bundle(
-            dist / f"snolc-0.0.1-{target}.tar.gz",
+            dist / f"snolc-modules-{version}-{target}.tar.gz",
             source,
             target,
             output,
