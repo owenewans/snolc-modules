@@ -11,7 +11,7 @@ toolchain = "1.98.1"
 dependencies = []
 
 [source]
-revision = "83aadeda5c5ae26f27588b64b67a04b3584b31c6"
+revision = "5939b6f15deb0b966da97d6862b4ca1c9ebedc16"
 
 [build]
 package = "snolc-adapter-socks5"
@@ -41,8 +41,8 @@ target = "x86_64-unknown-linux-gnu"
 minimum_isa = "x86-64"
 minimum_libc = "2.28"
 url = "https://github.com/owenewans/snolc-modules/releases/download/v0.0.2/adapter-socks5-0.0.2-x86_64-unknown-linux-gnu.tar.gz"
-byte_size = 309425
-sha256 = "02b793a3756e0b833c7155796f8c8a31f2678246406740b7081350d44ffad87e"
+byte_size = 311569
+sha256 = "79b137eac5e6c67089f2932aebb315661f7209cf4da426a4a643a194723bf852"
 build_output = "release/libsnolc_adapter_socks5.so"
 
 [[artifacts]]
@@ -50,8 +50,8 @@ target = "aarch64-linux-android"
 minimum_isa = "armv8-a"
 minimum_android_api = 24
 url = "https://github.com/owenewans/snolc-modules/releases/download/v0.0.2/adapter-socks5-0.0.2-aarch64-linux-android.tar.gz"
-byte_size = 305512
-sha256 = "936b8860aceaed15b85d73619a0897c6f4a524647d22c0aea1ee54940b985da7"
+byte_size = 304949
+sha256 = "2751a265d603f1e914dd0152cc821ad72d85d8170b241aec9db56d174a82059c"
 build_output = "release/libsnolc_adapter_socks5.so"
 
 [[artifacts]]
@@ -59,6 +59,6 @@ target = "armv7-linux-androideabi"
 minimum_isa = "armv7-a"
 minimum_android_api = 24
 url = "https://github.com/owenewans/snolc-modules/releases/download/v0.0.2/adapter-socks5-0.0.2-armv7-linux-androideabi.tar.gz"
-byte_size = 274997
-sha256 = "87831688ffddb82e096c6b4d2b92518083d01228d4cb39403612c4dc0c4b91cb"
+byte_size = 274517
+sha256 = "879c0dba2e35c3fa239b130f207af71d80196a72ed74dc3e525fe9a05d0e71d3"
 build_output = "release/libsnolc_adapter_socks5.so"

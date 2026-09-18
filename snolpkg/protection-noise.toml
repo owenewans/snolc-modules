@@ -11,7 +11,7 @@ toolchain = "1.98.1"
 dependencies = []
 
 [source]
-revision = "83aadeda5c5ae26f27588b64b67a04b3584b31c6"
+revision = "5939b6f15deb0b966da97d6862b4ca1c9ebedc16"
 
 [build]
 package = "snolc-protection-noise"
@@ -46,8 +46,8 @@ target = "x86_64-unknown-linux-gnu"
 minimum_isa = "x86-64"
 minimum_libc = "2.28"
 url = "https://github.com/owenewans/snolc-modules/releases/download/v0.0.2/protection-noise-0.0.2-x86_64-unknown-linux-gnu.tar.gz"
-byte_size = 394560
-sha256 = "041d8dfac2e11d553fa849c3155c99a78660452ff446b125888c1f9b96bce8bb"
+byte_size = 393475
+sha256 = "a66e23d7dbe4b5aa4f64f2addf7bad0d8213d7c3deba54e1d32bf3ebe5dfe28d"
 build_output = "release/libsnolc_protection_noise.so"
 
 [[artifacts]]
@@ -55,8 +55,8 @@ target = "aarch64-linux-android"
 minimum_isa = "armv8-a"
 minimum_android_api = 24
 url = "https://github.com/owenewans/snolc-modules/releases/download/v0.0.2/protection-noise-0.0.2-aarch64-linux-android.tar.gz"
-byte_size = 367961
-sha256 = "85fed5799100f5163937a8a56160f2cbafa26aeef151b336760f238e23fa06f2"
+byte_size = 364066
+sha256 = "cbc3de444839b6a26718ce56572cf8af7793259572ec7780a241a84781e9533e"
 build_output = "release/libsnolc_protection_noise.so"
 
 [[artifacts]]
@@ -64,6 +64,6 @@ target = "armv7-linux-androideabi"
 minimum_isa = "armv7-a"
 minimum_android_api = 24
 url = "https://github.com/owenewans/snolc-modules/releases/download/v0.0.2/protection-noise-0.0.2-armv7-linux-androideabi.tar.gz"
-byte_size = 358504
-sha256 = "7057a3722602953d91f4ffcbb694faca3393ba3874a05a40a7171c3a5ad0d500"
+byte_size = 354485
+sha256 = "45a7354d915605c146783904a1b48cd5e4b52d113e0bafe167c8df3dc2953199"
 build_output = "release/libsnolc_protection_noise.so"

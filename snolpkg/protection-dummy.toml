@@ -11,7 +11,7 @@ toolchain = "1.98.1"
 dependencies = []
 
 [source]
-revision = "83aadeda5c5ae26f27588b64b67a04b3584b31c6"
+revision = "5939b6f15deb0b966da97d6862b4ca1c9ebedc16"
 
 [build]
 package = "snolc-protection-dummy"
@@ -46,8 +46,8 @@ target = "x86_64-unknown-linux-gnu"
 minimum_isa = "x86-64"
 minimum_libc = "2.28"
 url = "https://github.com/owenewans/snolc-modules/releases/download/v0.0.2/protection-dummy-0.0.2-x86_64-unknown-linux-gnu.tar.gz"
-byte_size = 233318
-sha256 = "10a2b8aa33ca691161b5d6f4c90d94e321e32a18ebe3d4a0268893c4ea412596"
+byte_size = 235433
+sha256 = "6f1a2da24164577b209b0ec4e51d3b4740b2756644f8e458aed11558eae533cc"
 build_output = "release/libsnolc_protection_dummy.so"
 
 [[artifacts]]
@@ -55,8 +55,8 @@ target = "aarch64-linux-android"
 minimum_isa = "armv8-a"
 minimum_android_api = 24
 url = "https://github.com/owenewans/snolc-modules/releases/download/v0.0.2/protection-dummy-0.0.2-aarch64-linux-android.tar.gz"
-byte_size = 233985
-sha256 = "40f40d00329d4d1a8bd4dcf70b173cdf616a335439e60c9371fd612757fd7ee3"
+byte_size = 233438
+sha256 = "d9ada6e2681b50108ab849394039a61a9a02a3d35dd286c86b4426d98a5703af"
 build_output = "release/libsnolc_protection_dummy.so"
 
 [[artifacts]]
@@ -64,6 +64,6 @@ target = "armv7-linux-androideabi"
 minimum_isa = "armv7-a"
 minimum_android_api = 24
 url = "https://github.com/owenewans/snolc-modules/releases/download/v0.0.2/protection-dummy-0.0.2-armv7-linux-androideabi.tar.gz"
-byte_size = 208894
-sha256 = "75e372105828ab5bdbd3066bfa7ad11ac746abd3ec25d621e627c8fbb0e899ee"
+byte_size = 208336
+sha256 = "fad17d74bcc492fdcf24fe001e622a4ec5011ee6e65745228d148be3b75b349b"
 build_output = "release/libsnolc_protection_dummy.so"
