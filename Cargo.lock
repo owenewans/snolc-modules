@@ -1986,8 +1986,8 @@ dependencies = [
 
 [[package]]
 name = "snolc"
-version = "0.0.2"
-source = "git+https://github.com/owenewans/snolc.git?rev=c07d04a1f4957916c790edbafd122bb2756a9d50#c07d04a1f4957916c790edbafd122bb2756a9d50"
+version = "0.0.4"
+source = "git+https://github.com/owenewans/snolc.git?rev=1acd4bbffe2da418f95ce8188f5e9bd7793c145b#1acd4bbffe2da418f95ce8188f5e9bd7793c145b"
 dependencies = [
  "async-executor",
  "async-io",
@@ -2007,12 +2007,12 @@ dependencies = [
 
 [[package]]
 name = "snolc-abi"
-version = "0.0.2"
-source = "git+https://github.com/owenewans/snolc.git?rev=c07d04a1f4957916c790edbafd122bb2756a9d50#c07d04a1f4957916c790edbafd122bb2756a9d50"
+version = "0.0.4"
+source = "git+https://github.com/owenewans/snolc.git?rev=1acd4bbffe2da418f95ce8188f5e9bd7793c145b#1acd4bbffe2da418f95ce8188f5e9bd7793c145b"
 
 [[package]]
 name = "snolc-adapter-direct"
-version = "0.0.2"
+version = "0.0.4"
 dependencies = [
  "libc",
  "serde",
@@ -2022,7 +2022,7 @@ dependencies = [
 
 [[package]]
 name = "snolc-adapter-http-connect"
-version = "0.0.2"
+version = "0.0.4"
 dependencies = [
  "serde",
  "snolc-sdk",
@@ -2031,16 +2031,17 @@ dependencies = [
 
 [[package]]
 name = "snolc-adapter-socks5"
-version = "0.0.2"
+version = "0.0.4"
 dependencies = [
  "serde",
  "snolc-sdk",
+ "socket2",
  "toml",
 ]
 
 [[package]]
 name = "snolc-adapter-tun"
-version = "0.0.2"
+version = "0.0.4"
 dependencies = [
  "libc",
  "serde",
@@ -2050,7 +2051,7 @@ dependencies = [
 
 [[package]]
 name = "snolc-carrier-ssh"
-version = "0.0.2"
+version = "0.0.4"
 dependencies = [
  "crossbeam-queue",
  "futures",
@@ -2064,19 +2065,20 @@ dependencies = [
 
 [[package]]
 name = "snolc-carrier-tcp"
-version = "0.0.2"
+version = "0.0.4"
 dependencies = [
  "async-io",
  "futures",
  "libc",
  "serde",
  "snolc-sdk",
+ "socket2",
  "toml",
 ]
 
 [[package]]
 name = "snolc-module-tests"
-version = "0.0.2"
+version = "0.0.4"
 dependencies = [
  "futures",
  "rand",
@@ -2090,7 +2092,7 @@ dependencies = [
 
 [[package]]
 name = "snolc-policy-dummy"
-version = "0.0.2"
+version = "0.0.4"
 dependencies = [
  "serde",
  "snolc-sdk",
@@ -2099,7 +2101,7 @@ dependencies = [
 
 [[package]]
 name = "snolc-policy-local"
-version = "0.0.2"
+version = "0.0.4"
 dependencies = [
  "getrandom 0.3.4",
  "postcard",
@@ -2114,7 +2116,7 @@ dependencies = [
 
 [[package]]
 name = "snolc-protection-dummy"
-version = "0.0.2"
+version = "0.0.4"
 dependencies = [
  "serde",
  "snolc-sdk",
@@ -2123,7 +2125,7 @@ dependencies = [
 
 [[package]]
 name = "snolc-protection-noise"
-version = "0.0.2"
+version = "0.0.4"
 dependencies = [
  "serde",
  "snolc-sdk",
@@ -2133,8 +2135,8 @@ dependencies = [
 
 [[package]]
 name = "snolc-sdk"
-version = "0.0.2"
-source = "git+https://github.com/owenewans/snolc.git?rev=c07d04a1f4957916c790edbafd122bb2756a9d50#c07d04a1f4957916c790edbafd122bb2756a9d50"
+version = "0.0.4"
+source = "git+https://github.com/owenewans/snolc.git?rev=1acd4bbffe2da418f95ce8188f5e9bd7793c145b#1acd4bbffe2da418f95ce8188f5e9bd7793c145b"
 dependencies = [
  "snolc-abi",
  "thiserror",

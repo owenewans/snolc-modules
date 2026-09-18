@@ -13,5 +13,6 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 serde.workspace = true
+socket2.workspace = true
 snolc-sdk.workspace = true
 toml.workspace = true

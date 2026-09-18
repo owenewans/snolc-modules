@@ -1,6 +1,6 @@
 wire_version = 1
 instance = "socks5-main"
-package = "owenewans/adapter-socks5@0.0.2"
+package = "owenewans/adapter-socks5@0.0.4"
 role = "client"
 
 [options]

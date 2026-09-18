@@ -1,6 +1,6 @@
 wire_version = 1
 instance = "noise-main"
-package = "owenewans/protection-noise@0.0.2"
+package = "owenewans/protection-noise@0.0.4"
 role = "server"
 
 [options]
