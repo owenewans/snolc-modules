@@ -153,7 +153,7 @@ def dependency_notices(
         key=lambda package: (package["name"], package["version"]),
     )
     output = [
-        "SNOLC THIRD-PARTY NOTICES",
+        "snolc third-party notices",
         "",
         "The archive includes the following Rust dependencies. License texts follow each entry.",
         "",
