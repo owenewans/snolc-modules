@@ -2,7 +2,14 @@
 
 # snolc-modules
 
-official native modules for [SNOLC](https://github.com/owenewans/snolc).
+official native modules for [snolc](https://github.com/owenewans/snolc).
+
+[![ci](https://github.com/owenewans/snolc-modules/actions/workflows/ci.yml/badge.svg?branch=dev)](https://github.com/owenewans/snolc-modules/actions/workflows/ci.yml)
+[![scorecard](https://api.securityscorecards.dev/projects/github.com/owenewans/snolc-modules/badge)](https://securityscorecards.dev/viewer/?uri=github.com/owenewans/snolc-modules)
+[![last commit](https://img.shields.io/github/last-commit/owenewans/snolc-modules?logo=github)](https://github.com/owenewans/snolc-modules/commits/dev)
+[![license](https://img.shields.io/github/license/owenewans/snolc-modules)](LICENSE)
+
+<a href="https://count.owenewans.org/owenewans/snolc-modules?theme=moebooru-h&notitle"><img src="https://count.owenewans.org/owenewans/snolc-modules?theme=moebooru-h&notitle" alt="repository views"></a>
 
 `rust` `networking` `plugins`
 
@@ -40,9 +47,7 @@ and TUN packet paths.
 ## packages
 
 `config/templates/modules` contains strict role templates. `snolpkg` contains
-signed publication manifests. The 0.0.1 manifests still point to the original
-SNOLC release. The 0.0.2 release will replace them with artifacts from this
-repository.
+signed publication manifests for release artifacts from this repository.
 
 ## changes
 
