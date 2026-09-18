@@ -11,7 +11,7 @@ toolchain = "1.98.1"
 dependencies = []
 
 [source]
-revision = "83aadeda5c5ae26f27588b64b67a04b3584b31c6"
+revision = "5939b6f15deb0b966da97d6862b4ca1c9ebedc16"
 
 [build]
 package = "snolc-policy-local"
@@ -46,8 +46,8 @@ target = "x86_64-unknown-linux-gnu"
 minimum_isa = "x86-64"
 minimum_libc = "2.28"
 url = "https://github.com/owenewans/snolc-modules/releases/download/v0.0.2/policy-local-0.0.2-x86_64-unknown-linux-gnu.tar.gz"
-byte_size = 1036311
-sha256 = "9c4bdaae6f3af7edb12822dff6f025296b219362c01d38ebb64adead5f7485be"
+byte_size = 1039806
+sha256 = "34ff6d122e97e25e6e54a5354a8f8e7a4d3a11564312cbd5342f310ab21c2a08"
 build_output = "release/libsnolc_policy_local.so"
 
 [[artifacts]]
@@ -55,8 +55,8 @@ target = "aarch64-linux-android"
 minimum_isa = "armv8-a"
 minimum_android_api = 24
 url = "https://github.com/owenewans/snolc-modules/releases/download/v0.0.2/policy-local-0.0.2-aarch64-linux-android.tar.gz"
-byte_size = 948758
-sha256 = "797ce58ecb2a240e6e2b662d5a972a05520265e461b43158b73fd1d8de35f033"
+byte_size = 948174
+sha256 = "25ccce6bc8221825184d64db6ea2f33cf897f98c71a8eb13da4f6352cbf02ed1"
 build_output = "release/libsnolc_policy_local.so"
 
 [[artifacts]]
@@ -64,6 +64,6 @@ target = "armv7-linux-androideabi"
 minimum_isa = "armv7-a"
 minimum_android_api = 24
 url = "https://github.com/owenewans/snolc-modules/releases/download/v0.0.2/policy-local-0.0.2-armv7-linux-androideabi.tar.gz"
-byte_size = 866930
-sha256 = "ca040b1b6b738af76b88d6421f7c4d56ad7131a21cad1afd6e6a8dd33ae57846"
+byte_size = 866536
+sha256 = "235025c9476fe6e29ed023b2265dfe412b7fd2be7333ad934edf2af92f4357f1"
 build_output = "release/libsnolc_policy_local.so"
