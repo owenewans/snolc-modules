@@ -349,7 +349,7 @@ fn destroy_instance(instance: u64) {
 
 static POLICY: SnolPolicyApiV1 = SnolPolicyApiV1 {
     struct_size: size_of::<SnolPolicyApiV1>() as u32,
-    reserved: 0,
+    flags: abi::POLICY_PASSTHROUGH_TCP,
     attach_session: Some(attach_session),
     admit_flow: Some(admit_flow),
     attach_flow: Some(attach_flow),

@@ -4,6 +4,7 @@ use std::cell::RefCell;
 use std::collections::{HashMap, VecDeque};
 use std::io::{self, Read, Write};
 use std::net::{Ipv4Addr, Ipv6Addr, Shutdown, SocketAddr, TcpListener, TcpStream, UdpSocket};
+use std::sync::{Mutex, OnceLock};
 use std::task::{Context, Poll, Waker};
 
 use serde::Deserialize;
@@ -12,8 +13,11 @@ use snolc_sdk::abi::{
     SnolWakeHandle,
 };
 use snolc_sdk::{ByteIo, DatagramIo, DatagramRecv, ForeignByteIo, ForeignDatagramIo, Pump};
+use socket2::{Domain, Protocol, Socket, Type};
 
 const MAX_UDP_PAYLOAD: usize = 65_507;
+const STREAM_BUFFER_BYTES: usize = 131_072;
+const STREAM_WORK_BYTES: usize = STREAM_BUFFER_BYTES * 4;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum Command {
@@ -194,6 +198,7 @@ struct ClientConnection {
 
 impl ClientConnection {
     fn new(stream: TcpStream) -> io::Result<Self> {
+        stream.set_nodelay(true)?;
         stream.set_nonblocking(true)?;
         Ok(Self {
             stream,
@@ -402,8 +407,8 @@ impl ClientFlow {
             port: request.port,
             announced: false,
             stack: None,
-            upload: Pump::new(16_384).map_err(|_| abi::STATUS_RESOURCE)?,
-            download: Pump::new(16_384).map_err(|_| abi::STATUS_RESOURCE)?,
+            upload: Pump::new(STREAM_BUFFER_BYTES).map_err(|_| abi::STATUS_RESOURCE)?,
+            download: Pump::new(STREAM_BUFFER_BYTES).map_err(|_| abi::STATUS_RESOURCE)?,
             response: Vec::new(),
             response_offset: 0,
             accepted: None,
@@ -433,11 +438,11 @@ impl ClientFlow {
         };
         let upload = self
             .upload
-            .poll(context, &mut self.client, stack, 16_384)
+            .poll(context, &mut self.client, stack, STREAM_WORK_BYTES)
             .map_err(|error| io::Error::other(error.to_string()));
         let download = self
             .download
-            .poll(context, stack, &mut self.client, 16_384)
+            .poll(context, stack, &mut self.client, STREAM_WORK_BYTES)
             .map_err(|error| io::Error::other(error.to_string()));
         match (upload, download) {
             (Poll::Ready(Ok(upload)), Poll::Ready(Ok(download))) => {
@@ -552,7 +557,7 @@ fn encode_udp_header(address: &Address, port: u16) -> io::Result<Vec<u8>> {
 }
 
 struct State {
-    listener: TcpListener,
+    listen: SocketAddr,
     options: Options,
     clients: Vec<ClientConnection>,
     flows: HashMap<u64, ClientFlow>,
@@ -561,9 +566,18 @@ struct State {
     next_flow: u64,
 }
 
+struct ListenerGroup {
+    listener: TcpListener,
+    members: Vec<u64>,
+    queues: HashMap<u64, VecDeque<TcpStream>>,
+    next: usize,
+}
+
 thread_local! {
     static STATES: RefCell<HashMap<u64, State>> = RefCell::new(HashMap::new());
 }
+
+static LISTENERS: OnceLock<Mutex<HashMap<SocketAddr, ListenerGroup>>> = OnceLock::new();
 
 fn initialize(
     instance: u64,
@@ -572,13 +586,16 @@ fn initialize(
     _host: *const abi::SnolHostApiV1,
 ) -> Result<(), u32> {
     let options = parse_options(config).map_err(|_| abi::STATUS_INVALID)?;
-    let listener = TcpListener::bind(&options.listen).map_err(|_| abi::STATUS_IO)?;
-    listener.set_nonblocking(true).map_err(|_| abi::STATUS_IO)?;
+    let address = options
+        .listen
+        .parse::<SocketAddr>()
+        .map_err(|_| abi::STATUS_INVALID)?;
+    register_listener(instance, address).map_err(|_| abi::STATUS_IO)?;
     STATES.with(|states| {
         states.borrow_mut().insert(
             instance,
             State {
-                listener,
+                listen: address,
                 options,
                 clients: Vec::new(),
                 flows: HashMap::new(),
@@ -589,6 +606,93 @@ fn initialize(
         );
     });
     Ok(())
+}
+
+fn register_listener(instance: u64, address: SocketAddr) -> io::Result<()> {
+    let mut listeners = LISTENERS
+        .get_or_init(|| Mutex::new(HashMap::new()))
+        .lock()
+        .map_err(|_| io::Error::other("listener registry is poisoned"))?;
+    let group = match listeners.entry(address) {
+        std::collections::hash_map::Entry::Occupied(entry) => entry.into_mut(),
+        std::collections::hash_map::Entry::Vacant(entry) => entry.insert(ListenerGroup {
+            listener: reusable_listener(address)?,
+            members: Vec::new(),
+            queues: HashMap::new(),
+            next: 0,
+        }),
+    };
+    group.members.push(instance);
+    group.queues.insert(instance, VecDeque::new());
+    Ok(())
+}
+
+fn unregister_listener(instance: u64, address: SocketAddr) {
+    let Ok(mut listeners) = LISTENERS.get_or_init(|| Mutex::new(HashMap::new())).lock() else {
+        return;
+    };
+    let remove = if let Some(group) = listeners.get_mut(&address) {
+        group.members.retain(|member| *member != instance);
+        group.queues.remove(&instance);
+        group.next = group.next.min(group.members.len().saturating_sub(1));
+        group.members.is_empty()
+    } else {
+        false
+    };
+    if remove {
+        listeners.remove(&address);
+    }
+}
+
+fn accept_clients(instance: u64, state: &mut State) {
+    let Ok(mut listeners) = LISTENERS.get_or_init(|| Mutex::new(HashMap::new())).lock() else {
+        return;
+    };
+    let Some(group) = listeners.get_mut(&state.listen) else {
+        return;
+    };
+    while !group.members.is_empty() {
+        match group.listener.accept() {
+            Ok((stream, _)) => {
+                let member = group.members[group.next % group.members.len()];
+                group.next = (group.next + 1) % group.members.len();
+                if let Some(queue) = group.queues.get_mut(&member) {
+                    queue.push_back(stream);
+                }
+            }
+            Err(error) if error.kind() == io::ErrorKind::WouldBlock => break,
+            Err(_) => break,
+        }
+    }
+    let Some(queue) = group.queues.get_mut(&instance) else {
+        return;
+    };
+    while state.clients.len() + state.flows.len() + state.associations.len()
+        < state.options.max_connections
+    {
+        let Some(stream) = queue.pop_front() else {
+            break;
+        };
+        if let Ok(client) = ClientConnection::new(stream) {
+            state.clients.push(client);
+        }
+    }
+}
+
+fn reusable_listener(address: SocketAddr) -> io::Result<TcpListener> {
+    let domain = if address.is_ipv4() {
+        Domain::IPV4
+    } else {
+        Domain::IPV6
+    };
+    let socket = Socket::new(domain, Type::STREAM, Some(Protocol::TCP))?;
+    socket.set_reuse_address(true)?;
+    #[cfg(any(target_os = "android", target_os = "linux"))]
+    socket.set_reuse_port(true)?;
+    socket.bind(&address.into())?;
+    socket.listen(1024)?;
+    socket.set_nonblocking(true)?;
+    Ok(socket.into())
 }
 
 unsafe extern "C" fn open(
@@ -626,7 +730,7 @@ unsafe extern "C" fn accept(
             let Some(state) = states.get_mut(&instance) else {
                 return abi::STATUS_INVALID;
             };
-            poll_state(state);
+            poll_state(instance, state);
             if let Some((handle, flow)) = state.flows.iter_mut().find(|(_, flow)| !flow.announced) {
                 flow.announced = true;
                 *metadata =
@@ -801,19 +905,8 @@ fn socks_bound_response(address: SocketAddr) -> Vec<u8> {
     output
 }
 
-fn poll_state(state: &mut State) {
-    while state.clients.len() + state.flows.len() + state.associations.len()
-        < state.options.max_connections
-    {
-        match state.listener.accept() {
-            Ok((stream, _)) => match ClientConnection::new(stream) {
-                Ok(client) => state.clients.push(client),
-                Err(_) => continue,
-            },
-            Err(error) if error.kind() == io::ErrorKind::WouldBlock => break,
-            Err(_) => break,
-        }
-    }
+fn poll_state(instance: u64, state: &mut State) {
+    accept_clients(instance, state);
     let mut promote = Vec::new();
     for (index, client) in state.clients.iter_mut().enumerate() {
         if client.poll(state.options.max_request_bytes).is_err() {
@@ -989,7 +1082,7 @@ fn poll_instance(instance: u64, _wake: SnolWakeHandle) -> u32 {
         let Some(state) = states.get_mut(&instance) else {
             return abi::STATUS_INVALID;
         };
-        poll_state(state);
+        poll_state(instance, state);
         abi::STATUS_PENDING
     })
 }
@@ -999,7 +1092,8 @@ fn control_instance(_instance: u64, _request: &[u8]) -> Result<Vec<u8>, u32> {
 }
 
 fn shutdown_instance(instance: u64) -> u32 {
-    if STATES.with(|states| states.borrow_mut().remove(&instance).is_some()) {
+    if let Some(state) = STATES.with(|states| states.borrow_mut().remove(&instance)) {
+        unregister_listener(instance, state.listen);
         abi::STATUS_OK
     } else {
         abi::STATUS_INVALID
@@ -1007,7 +1101,9 @@ fn shutdown_instance(instance: u64) -> u32 {
 }
 
 fn destroy_instance(instance: u64) {
-    STATES.with(|states| states.borrow_mut().remove(&instance));
+    if let Some(state) = STATES.with(|states| states.borrow_mut().remove(&instance)) {
+        unregister_listener(instance, state.listen);
+    }
 }
 
 static ADAPTER: SnolAdapterApiV1 = SnolAdapterApiV1 {

@@ -28,6 +28,8 @@ use snolc_sdk::{
 };
 
 const MAX_UDP_PAYLOAD: usize = 65_507;
+const STREAM_BUFFER_BYTES: usize = 131_072;
+const STREAM_WORK_BYTES: usize = STREAM_BUFFER_BYTES * 4;
 
 pub trait SocketProtector: Send + Sync {
     fn protect(&self, socket: i64) -> io::Result<()>;
@@ -435,23 +437,34 @@ impl<S: DatagramIo> DirectDatagramFlow<S> {
 
 impl<S: ByteIo> DirectFlow<S> {
     fn new(stack: S, endpoint: TcpStream) -> Result<Self, DirectError> {
+        endpoint.set_nodelay(true)?;
         endpoint.set_nonblocking(true)?;
         Ok(Self {
             stack,
             endpoint: TcpIo(endpoint),
-            upload: Pump::new(16_384).map_err(|_| DirectError::Resource)?,
-            download: Pump::new(16_384).map_err(|_| DirectError::Resource)?,
+            upload: Pump::new(STREAM_BUFFER_BYTES).map_err(|_| DirectError::Resource)?,
+            download: Pump::new(STREAM_BUFFER_BYTES).map_err(|_| DirectError::Resource)?,
         })
     }
 
     fn poll(&mut self, context: &mut Context<'_>) -> Poll<Result<bool, DirectError>> {
         let upload = self
             .upload
-            .poll(context, &mut self.stack, &mut self.endpoint, 16_384)
+            .poll(
+                context,
+                &mut self.stack,
+                &mut self.endpoint,
+                STREAM_WORK_BYTES,
+            )
             .map_err(|error| DirectError::Io(io::Error::other(error.to_string())));
         let download = self
             .download
-            .poll(context, &mut self.endpoint, &mut self.stack, 16_384)
+            .poll(
+                context,
+                &mut self.endpoint,
+                &mut self.stack,
+                STREAM_WORK_BYTES,
+            )
             .map_err(|error| DirectError::Io(io::Error::other(error.to_string())));
         match (upload, download) {
             (Poll::Ready(Ok(upload)), Poll::Ready(Ok(download))) => {

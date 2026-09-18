@@ -16,5 +16,6 @@ async-io.workspace = true
 futures.workspace = true
 libc.workspace = true
 serde.workspace = true
+socket2.workspace = true
 snolc-sdk.workspace = true
 toml.workspace = true

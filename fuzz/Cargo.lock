@@ -356,12 +356,12 @@ checksum = "f8fadd59c855ef2080decdef8ff161eb6661b86933c9d82e5ba29dc602a55aba"
 
 [[package]]
 name = "snolc-abi"
-version = "0.0.2"
-source = "git+https://github.com/owenewans/snolc.git?rev=c07d04a1f4957916c790edbafd122bb2756a9d50#c07d04a1f4957916c790edbafd122bb2756a9d50"
+version = "0.0.4"
+source = "git+https://github.com/owenewans/snolc.git?rev=1acd4bbffe2da418f95ce8188f5e9bd7793c145b#1acd4bbffe2da418f95ce8188f5e9bd7793c145b"
 
 [[package]]
 name = "snolc-modules-fuzz"
-version = "0.0.2"
+version = "0.0.4"
 dependencies = [
  "libfuzzer-sys",
  "snolc-policy-local",
@@ -369,7 +369,7 @@ dependencies = [
 
 [[package]]
 name = "snolc-policy-local"
-version = "0.0.2"
+version = "0.0.4"
 dependencies = [
  "getrandom 0.3.4",
  "postcard",
@@ -384,8 +384,8 @@ dependencies = [
 
 [[package]]
 name = "snolc-sdk"
-version = "0.0.2"
-source = "git+https://github.com/owenewans/snolc.git?rev=c07d04a1f4957916c790edbafd122bb2756a9d50#c07d04a1f4957916c790edbafd122bb2756a9d50"
+version = "0.0.4"
+source = "git+https://github.com/owenewans/snolc.git?rev=1acd4bbffe2da418f95ce8188f5e9bd7793c145b#1acd4bbffe2da418f95ce8188f5e9bd7793c145b"
 dependencies = [
  "snolc-abi",
  "thiserror",

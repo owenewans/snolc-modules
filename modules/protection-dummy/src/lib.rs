@@ -164,7 +164,7 @@ static BYTE_IO: SnolByteIoV1 = SnolByteIoV1 {
 
 static PROTECTION: SnolProtectionApiV1 = SnolProtectionApiV1 {
     struct_size: size_of::<SnolProtectionApiV1>() as u32,
-    reserved: 0,
+    flags: abi::PROTECTION_PASSTHROUGH,
     wrap: Some(wrap),
 };
 

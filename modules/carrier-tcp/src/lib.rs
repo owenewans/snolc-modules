@@ -9,6 +9,7 @@ use std::net::{SocketAddr, TcpListener, TcpStream};
 use std::os::fd::{AsRawFd, FromRawFd};
 use std::pin::Pin;
 use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::{Mutex, OnceLock};
 use std::task::{Context, Poll, Waker};
 
 use async_io::Async;
@@ -19,6 +20,7 @@ use snolc_sdk::abi::{
     self, SnolByteIoV1, SnolBytes, SnolBytesMut, SnolCarrierApiV1, SnolIoResult,
     SnolModuleDescriptor, SnolWakeHandle,
 };
+use socket2::{Domain, Protocol, Socket, Type};
 
 type ConnectFuture = Pin<Box<dyn Future<Output = io::Result<Async<TcpStream>>>>>;
 
@@ -128,6 +130,7 @@ thread_local! {
 
 static INSTANCE_NEXT: AtomicU64 = AtomicU64::new(1);
 static STREAM_NEXT: AtomicU64 = AtomicU64::new(1);
+static LISTENERS: OnceLock<Mutex<HashMap<SocketAddr, TcpListener>>> = OnceLock::new();
 
 fn parse_options(config: &[u8]) -> Result<Options, String> {
     let text = std::str::from_utf8(config).map_err(|_| "config is not UTF-8".to_owned())?;
@@ -201,7 +204,7 @@ unsafe extern "C" fn create(
                 max_connections,
                 nodelay,
             } => {
-                let listener = match TcpListener::bind(endpoint_ip).and_then(Async::new) {
+                let listener = match shared_listener(endpoint_ip).and_then(Async::new) {
                     Ok(listener) => listener,
                     Err(_) => return abi::STATUS_IO,
                 };
@@ -231,6 +234,35 @@ unsafe extern "C" fn create(
         *output = handle;
         abi::STATUS_OK
     })
+}
+
+fn reusable_listener(address: SocketAddr) -> io::Result<TcpListener> {
+    let domain = if address.is_ipv4() {
+        Domain::IPV4
+    } else {
+        Domain::IPV6
+    };
+    let socket = Socket::new(domain, Type::STREAM, Some(Protocol::TCP))?;
+    socket.set_reuse_address(true)?;
+    #[cfg(any(target_os = "android", target_os = "linux"))]
+    socket.set_reuse_port(true)?;
+    socket.bind(&address.into())?;
+    socket.listen(1024)?;
+    socket.set_nonblocking(true)?;
+    Ok(socket.into())
+}
+
+fn shared_listener(address: SocketAddr) -> io::Result<TcpListener> {
+    let mut listeners = LISTENERS
+        .get_or_init(|| Mutex::new(HashMap::new()))
+        .lock()
+        .map_err(|_| io::Error::other("listener registry is poisoned"))?;
+    if let Some(listener) = listeners.get(&address) {
+        return listener.try_clone();
+    }
+    let listener = reusable_listener(address)?;
+    listeners.insert(address, listener.try_clone()?);
+    Ok(listener)
 }
 
 unsafe extern "C" fn poll(instance: u64, _wake: SnolWakeHandle) -> u32 {

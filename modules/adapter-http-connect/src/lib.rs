@@ -12,6 +12,9 @@ use snolc_sdk::abi::{
 };
 use snolc_sdk::{ByteIo, ForeignByteIo, Pump};
 
+const STREAM_BUFFER_BYTES: usize = 131_072;
+const STREAM_WORK_BYTES: usize = STREAM_BUFFER_BYTES * 4;
+
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Host {
     Ipv4(Ipv4Addr),
@@ -264,8 +267,8 @@ impl ClientFlow {
             port: request.port,
             announced: false,
             stack: None,
-            upload: Pump::new(16_384).map_err(|_| abi::STATUS_RESOURCE)?,
-            download: Pump::new(16_384).map_err(|_| abi::STATUS_RESOURCE)?,
+            upload: Pump::new(STREAM_BUFFER_BYTES).map_err(|_| abi::STATUS_RESOURCE)?,
+            download: Pump::new(STREAM_BUFFER_BYTES).map_err(|_| abi::STATUS_RESOURCE)?,
             response: Vec::new(),
             response_offset: 0,
             accepted: None,
@@ -295,11 +298,11 @@ impl ClientFlow {
         };
         let upload = self
             .upload
-            .poll(context, &mut self.client, stack, 16_384)
+            .poll(context, &mut self.client, stack, STREAM_WORK_BYTES)
             .map_err(|error| io::Error::other(error.to_string()));
         let download = self
             .download
-            .poll(context, stack, &mut self.client, 16_384)
+            .poll(context, stack, &mut self.client, STREAM_WORK_BYTES)
             .map_err(|error| io::Error::other(error.to_string()));
         match (upload, download) {
             (Poll::Ready(Ok(upload)), Poll::Ready(Ok(download))) => {

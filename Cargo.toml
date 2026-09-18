@@ -15,7 +15,7 @@ members = [
 ]
 
 [workspace.package]
-version = "0.0.2"
+version = "0.0.4"
 edition = "2024"
 rust-version = "1.98.1"
 authors = ["Owen Ewans <owenewans@tuta.io>"]
@@ -33,10 +33,11 @@ rand = "=0.10.2"
 redb = "=4.3.0"
 russh = { version = "=0.63.3", default-features = false, features = ["ring"] }
 serde = { version = "=1.0.229", features = ["derive"] }
+socket2 = { version = "=0.6.5", features = ["all"] }
 sha2 = "=0.10.9"
 smoltcp = { version = "=0.14.0", default-features = false, features = ["std", "medium-ip", "proto-ipv4", "proto-ipv6", "socket-tcp", "socket-udp", "fragmentation-buffer-size-65536", "reassembly-buffer-count-4", "reassembly-buffer-size-65536", "proto-ipv4-fragmentation", "proto-ipv6-fragmentation"] }
-snolc = { version = "=0.0.2", git = "https://github.com/owenewans/snolc.git", rev = "c07d04a1f4957916c790edbafd122bb2756a9d50" }
-snolc-sdk = { version = "=0.0.2", git = "https://github.com/owenewans/snolc.git", rev = "c07d04a1f4957916c790edbafd122bb2756a9d50" }
+snolc = { version = "=0.0.4", git = "https://github.com/owenewans/snolc.git", rev = "1acd4bbffe2da418f95ce8188f5e9bd7793c145b" }
+snolc-sdk = { version = "=0.0.4", git = "https://github.com/owenewans/snolc.git", rev = "1acd4bbffe2da418f95ce8188f5e9bd7793c145b" }
 snow = "=0.10.0"
 thiserror = "=2.0.20"
 tokio = { version = "=1.53.1", features = ["io-util", "net", "rt", "sync", "time"] }

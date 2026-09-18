@@ -1,6 +1,6 @@
 [package]
 name = "snolc-modules-fuzz"
-version = "0.0.2"
+version = "0.0.4"
 publish = false
 edition = "2024"
 
@@ -9,7 +9,7 @@ cargo-fuzz = true
 
 [dependencies]
 libfuzzer-sys = "=0.4.13"
-snolc-policy-local = { version = "=0.0.2", path = "../modules/policy-local" }
+snolc-policy-local = { version = "=0.0.4", path = "../modules/policy-local" }
 
 [[bin]]
 name = "policy-frame"
