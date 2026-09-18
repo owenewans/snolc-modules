@@ -1,0 +1,50 @@
+[workspace]
+resolver = "3"
+members = [
+  "modules/adapter-socks5",
+  "modules/adapter-http-connect",
+  "modules/adapter-direct",
+  "modules/adapter-tun",
+  "modules/protection-dummy",
+  "modules/protection-noise",
+  "modules/carrier-tcp",
+  "modules/carrier-ssh",
+  "modules/policy-dummy",
+  "modules/policy-local",
+  "testsuite",
+]
+
+[workspace.package]
+version = "0.0.2"
+edition = "2024"
+rust-version = "1.98.1"
+authors = ["Owen Ewans <owenewans@tuta.io>"]
+license = "Unlicense"
+repository = "https://github.com/owenewans/snolc-modules"
+
+[workspace.dependencies]
+async-io = "=2.6.0"
+crossbeam-queue = "=0.3.12"
+futures = "=0.3.34"
+getrandom = "=0.3.4"
+libc = "=0.2.189"
+postcard = { version = "=1.1.3", features = ["alloc"] }
+rand = "=0.10.2"
+redb = "=4.3.0"
+russh = { version = "=0.63.3", default-features = false, features = ["ring"] }
+serde = { version = "=1.0.229", features = ["derive"] }
+sha2 = "=0.10.9"
+smoltcp = { version = "=0.14.0", default-features = false, features = ["std", "medium-ip", "proto-ipv4", "proto-ipv6", "socket-tcp", "socket-udp", "fragmentation-buffer-size-65536", "reassembly-buffer-count-4", "reassembly-buffer-size-65536", "proto-ipv4-fragmentation", "proto-ipv6-fragmentation"] }
+snolc = { version = "=0.0.2", git = "https://github.com/owenewans/snolc.git", rev = "c07d04a1f4957916c790edbafd122bb2756a9d50" }
+snolc-sdk = { version = "=0.0.2", git = "https://github.com/owenewans/snolc.git", rev = "c07d04a1f4957916c790edbafd122bb2756a9d50" }
+snow = "=0.10.0"
+thiserror = "=2.0.20"
+tokio = { version = "=1.53.1", features = ["io-util", "net", "rt", "sync", "time"] }
+toml = "=1.1.6"
+zeroize = "=1.9.0"
+
+[profile.release]
+codegen-units = 1
+lto = "thin"
+panic = "unwind"
+strip = "symbols"

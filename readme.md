@@ -1,0 +1,54 @@
+<div align="center">
+
+# snolc-modules
+
+official native modules for [SNOLC](https://github.com/owenewans/snolc).
+
+`rust` `networking` `plugins`
+
+</div>
+
+## modules
+
+| package | class | role |
+| --- | --- | --- |
+| `adapter-socks5` | adapter | client |
+| `adapter-http-connect` | adapter | client |
+| `adapter-tun` | adapter | client |
+| `adapter-direct` | adapter | server |
+| `protection-noise` | protection | client, server |
+| `protection-dummy` | protection | client, server |
+| `carrier-tcp` | carrier | client, server |
+| `carrier-ssh` | carrier | client, server |
+| `policy-local` | policy | client, server |
+| `policy-dummy` | policy | client, server |
+
+## build
+
+Rust 1.98.1 and `Cargo.lock` define the build.
+
+```sh
+cargo build --workspace --locked
+cargo test --workspace --locked
+cargo clippy --workspace --all-targets --locked -- -D warnings
+```
+
+The workspace pins `snolc-sdk` and the test engine to one `snolc` commit. Native
+E2E tests load all ten libraries and exercise TCP, UDP, Noise, SSH, policy-local
+and TUN packet paths.
+
+## packages
+
+`config/templates/modules` contains strict role templates. `snolpkg` contains
+signed publication manifests. The 0.0.1 manifests still point to the original
+SNOLC release. The 0.0.2 release will replace them with artifacts from this
+repository.
+
+## changes
+
+Push changes to a branch and open a pull request. The protected `master` branch
+rejects direct pushes.
+
+## license
+
+[Unlicense](LICENSE)

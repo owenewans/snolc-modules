@@ -1,0 +1,22 @@
+[package]
+name = "snolc-modules-fuzz"
+version = "0.0.2"
+publish = false
+edition = "2024"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "=0.4.13"
+snolc-policy-local = { version = "=0.0.2", path = "../modules/policy-local" }
+
+[[bin]]
+name = "policy-frame"
+path = "fuzz_targets/policy_frame.rs"
+test = false
+doc = false
+bench = false
+
+[workspace]
+members = ["."]

@@ -1,0 +1,77 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - dev
+  pull_request:
+    branches:
+      - master
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  linux:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+      - run: rustc --version --verbose
+      - run: cargo fmt --all -- --check
+      - run: cargo build --workspace --locked
+      - run: cargo test --workspace --locked
+      - run: cargo clippy --workspace --all-targets --locked -- -D warnings
+      - run: cargo build --workspace --release --locked
+      - name: install cargo-deny
+        run: cargo install cargo-deny --version 0.20.2 --locked
+      - run: cargo deny check
+
+  android:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: aarch64-linux-android
+            clang: aarch64-linux-android24-clang
+          - target: armv7-linux-androideabi
+            clang: armv7a-linux-androideabi24-clang
+    env:
+      ANDROID_NDK: /usr/local/lib/android/sdk/ndk/29.0.14206865
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+      - name: install NDK
+        run: yes | "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" "ndk;29.0.14206865"
+      - run: rustup target add ${{ matrix.target }}
+      - name: build all modules
+        env:
+          CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER: /usr/local/lib/android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/linux-x86_64/bin/${{ matrix.clang }}
+          CARGO_TARGET_ARMV7_LINUX_ANDROIDEABI_LINKER: /usr/local/lib/android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/linux-x86_64/bin/${{ matrix.clang }}
+          CC_aarch64_linux_android: /usr/local/lib/android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/linux-x86_64/bin/${{ matrix.clang }}
+          CC_armv7_linux_androideabi: /usr/local/lib/android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/linux-x86_64/bin/${{ matrix.clang }}
+          AR_aarch64_linux_android: /usr/local/lib/android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar
+          AR_armv7_linux_androideabi: /usr/local/lib/android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar
+        run: cargo build --workspace --exclude snolc-module-tests --release --locked --target ${{ matrix.target }}
+      - name: count modules
+        run: test "$(find target/${{ matrix.target }}/release -maxdepth 1 -name 'libsnolc_*.so' | wc -l)" -eq 10
+
+  fuzz:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+      - run: rustup toolchain install nightly-2026-09-16 --profile minimal
+      - run: cargo +1.98.1 install cargo-fuzz --version 0.13.2 --locked
+      - run: cargo +nightly-2026-09-16 metadata --manifest-path fuzz/Cargo.toml --locked --format-version 1 >/dev/null
+      - working-directory: fuzz
+        run: cargo +nightly-2026-09-16 fuzz run policy-frame -- -max_total_time=10 -rss_limit_mb=4096 -max_len=65536
